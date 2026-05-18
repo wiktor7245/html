@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wiktor Tylman</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --accent-2: #16a34a;
+      --border: #334155;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, var(--bg) 45%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      width: min(980px, 92vw);
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+    }
+
+    h1, h2 { margin-top: 0; }
+
+    h1 {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.9rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .lead { color: var(--muted); margin: 0; }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+    }
+
+    .card h3 {
+      margin: 0 0 0.4rem;
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.65rem;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    th {
+      background: #0b1220;
+      color: #cbd5e1;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 1.6rem;
+    }
+
+    a { color: #93c5fd; }
+    a:hover { color: #bfdbfe; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <span class="badge">wiktortylman.site</span>
+      <h1>Elo i z fartem</h1>
+      <p class="lead">To lekki template pod szybkie info: co robisz, gdzie Cię znaleźć i jakie projekty aktualnie żyją.</p>
+    </header>
+
+    <div class="grid">
+      <article class="card">
+        <h3>O mnie</h3>
+        <p>Lecimy z fartem.</p>
+      </article>
+      <article class="card">
+        <h3>Kontakt</h3>
+        <p>Email: <a href="mailto:wiktor7245@o2.pl">wiktor7245@o2.pl</a></p>
+      </article>
+      <article class="card">
+        <h3>Status</h3>
+        <p>Strona działa za Caddy + Docker, z obsługą HTTPS i subdomen.</p>
+      </article>
+    </div>
+
+    <section>
+      <h2>Aktualne projekty</h2>
+      <ul>
+        <li><strong>Gym</strong> - <a href="https://gym.wiktortylman.site">gym.wiktortylman.site</a></li>
+        <li><strong>Stardew</strong> - <a href="https://stardew.wiktortylman.site">stardew.wiktortylman.site</a></li>
+        <li><strong>Joplin</strong> - <a href="https://joplin.wiktortylman.site">joplin.wiktortylman.site</a></li>
+        <li><strong>Dinner</strong> - <a href="https://dinner.wiktortylman.site">dinner.wiktortylman.site</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Plan rozwoju</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Obszar</th>
+            <th>Najbliższy krok</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Frontend</td>
+            <td>Dodać sekcję portfolio</td>
+            <td>W toku</td>
+          </tr>
+          <tr>
+            <td>Backend</td>
+            <td>Przejście na Nest.js</td>
+            <td>Planowane</td>
+          </tr>
+          <tr>
+            <td>Backend / Frontend</td>
+            <td>Nowe Stardew</td>
+            <td>Planowane</td>
+          </tr>                        
+        </tbody>
+      </table>
+    </section>
+
+    <footer>
+          &copy; 2026 Wiktor Tylman. Wszystkie prawa zastrzeżone.
+    </footer>
+  </main>
+</body>
+</html>
