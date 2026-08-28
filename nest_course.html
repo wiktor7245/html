@@ -1,0 +1,1410 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Kurs krok po kroku: NestJS, PostgreSQL, Prisma 7 oraz bezpieczne JWT access i refresh tokeny."
+    />
+    <title>NestJS + PostgreSQL + JWT — kurs krok po kroku</title>
+    <style>
+      :root {
+        --ink: #0b1730;
+        --muted: #59667c;
+        --line: #dfe5ee;
+        --paper: #fff;
+        --soft: #f5f8fc;
+        --blue: #1769ff;
+        --navy: #061a35;
+        --code: #dceaff;
+        --green: #18a66a;
+        --max: 1200px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font:
+          16px/1.65 Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+      }
+      .topbar {
+        height: 64px;
+        position: sticky;
+        top: 0;
+        z-index: 4;
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding: 0 max(24px, calc((100vw - var(--max)) / 2));
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(12px);
+      }
+      .brand {
+        font-weight: 800;
+        font-size: 18px;
+        white-space: nowrap;
+      }
+      .progress {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .track {
+        width: 160px;
+        height: 7px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e7edf5;
+      }
+      .fill {
+        width: 0;
+        height: 100%;
+        background: var(--blue);
+        transition: width 0.25s ease;
+      }
+      .topbar nav {
+        display: flex;
+        gap: 22px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .layout {
+        max-width: var(--max);
+        margin: auto;
+        display: grid;
+        grid-template-columns: 236px minmax(0, 1fr);
+      }
+      aside {
+        position: sticky;
+        top: 64px;
+        align-self: start;
+        height: calc(100vh - 64px);
+        overflow: auto;
+        padding: 34px 24px 48px 0;
+        border-right: 1px solid var(--line);
+      }
+      aside h2 {
+        margin: 0 0 16px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      aside a {
+        display: block;
+        padding: 7px 0;
+        font-size: 13px;
+        color: #33415a;
+      }
+      aside a:hover {
+        color: var(--blue);
+      }
+      aside .group {
+        margin: 22px 0 8px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+      aside .done {
+        color: var(--green);
+      }
+      main {
+        min-width: 0;
+        padding: 66px 0 96px 70px;
+      }
+      .hero {
+        max-width: 800px;
+        margin-bottom: 58px;
+      }
+      h1 {
+        max-width: 800px;
+        margin: 0 0 18px;
+        font-size: clamp(40px, 5vw, 68px);
+        line-height: 1.02;
+        letter-spacing: -0.055em;
+      }
+      .lead {
+        max-width: 700px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 20px;
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.45fr 0.85fr;
+        gap: 24px;
+        margin-top: 32px;
+      }
+      .dark-panel {
+        min-height: 205px;
+        padding: 30px;
+        border-radius: 14px;
+        color: white;
+        background: linear-gradient(135deg, #061a35, #0b2d59);
+      }
+      .dark-panel h2 {
+        margin: 0 0 12px;
+        font-size: 25px;
+        line-height: 1.2;
+      }
+      .dark-panel p {
+        margin: 0;
+        color: #b8cdf0;
+      }
+      .dark-panel ul {
+        padding-left: 18px;
+        color: #dceaff;
+      }
+      .callout {
+        border: 1px solid #9abfff;
+        border-radius: 14px;
+        padding: 24px;
+        background: #fbfdff;
+      }
+      .callout h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        color: #1156d7;
+      }
+      .callout p {
+        margin: 0;
+        font-size: 14px;
+        color: #40506b;
+      }
+      section {
+        max-width: 820px;
+        padding-top: 32px;
+        margin-top: 48px;
+        border-top: 1px solid var(--line);
+      }
+      section:first-of-type {
+        border-top: 0;
+      }
+      h2 {
+        font-size: 31px;
+        line-height: 1.18;
+        letter-spacing: -0.035em;
+        margin: 0 0 12px;
+      }
+      h3 {
+        margin: 28px 0 9px;
+        font-size: 19px;
+      }
+      p {
+        margin: 0 0 16px;
+      }
+      .step {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .num {
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+        width: 31px;
+        height: 31px;
+        margin-top: 3px;
+        border-radius: 50%;
+        color: white;
+        background: var(--blue);
+        font-weight: 800;
+        font-size: 14px;
+      }
+      .code {
+        position: relative;
+        margin: 18px 0 24px;
+        overflow: auto;
+        border-radius: 12px;
+        background: var(--navy);
+        box-shadow: 0 12px 30px rgba(3, 22, 48, 0.12);
+      }
+      pre {
+        margin: 0;
+        padding: 22px 76px 22px 24px;
+        color: var(--code);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .copy {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 8px;
+        padding: 7px 10px;
+        color: white;
+        background: rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        font: 600 12px inherit;
+      }
+      .copy:hover {
+        background: rgba(255, 255, 255, 0.18);
+      }
+      .note {
+        margin: 22px 0;
+        padding: 16px 18px;
+        border-left: 4px solid var(--blue);
+        background: var(--soft);
+        color: #31405b;
+      }
+      .warning {
+        border-left-color: #d88900;
+        background: #fffaf0;
+      }
+      .checklist {
+        margin: 20px 0 0;
+        padding: 0;
+        list-style: none;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .checklist li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+      }
+      .checklist li:last-child {
+        border: 0;
+      }
+      .checklist input {
+        accent-color: var(--blue);
+        width: 16px;
+        height: 16px;
+      }
+      .endpoint {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 12px;
+        align-items: center;
+        margin: 10px 0;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #fff;
+        font-size: 14px;
+      }
+      .method {
+        color: #1156d7;
+        font-family: monospace;
+        font-weight: 800;
+      }
+      .footer {
+        margin-top: 64px;
+        padding: 30px;
+        border-radius: 14px;
+        background: var(--navy);
+        color: white;
+      }
+      .footer h2 {
+        font-size: 26px;
+      }
+      .footer p {
+        color: #c7d7ef;
+      }
+      .finish {
+        border: 0;
+        border-radius: 9px;
+        padding: 11px 16px;
+        color: white;
+        background: var(--blue);
+        font: 700 14px inherit;
+        cursor: pointer;
+      }
+      @media (max-width: 900px) {
+        .topbar nav {
+          display: none;
+        }
+        .layout {
+          display: block;
+        }
+        aside {
+          display: none;
+        }
+        main {
+          padding: 42px 24px 72px;
+        }
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+        .progress {
+          margin-left: auto;
+        }
+      }
+      @media (max-width: 560px) {
+        .topbar {
+          padding: 0 16px;
+        }
+        .brand {
+          font-size: 15px;
+        }
+        .progress span {
+          display: none;
+        }
+        .track {
+          width: 95px;
+        }
+        main {
+          padding: 34px 18px 60px;
+        }
+        h1 {
+          font-size: 41px;
+        }
+        .lead {
+          font-size: 18px;
+        }
+        h2 {
+          font-size: 27px;
+        }
+        pre {
+          font-size: 12px;
+          padding-left: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#start">NestJS + PostgreSQL + JWT</a>
+      <div class="progress">
+        <span>Postęp kursu</span><strong id="percent">0%</strong>
+        <div class="track"><div class="fill" id="fill"></div></div>
+      </div>
+      <nav><a href="#testy">Testy</a><a href="#co-dalej">Co dalej</a></nav>
+    </header>
+    <div class="layout">
+      <aside aria-label="Spis treści">
+        <h2>SPIS TREŚCI</h2>
+        <a href="#start">0. Cel kursu</a>
+        <a href="#backend-basics">Jak działa backend i HTTP</a>
+        <a href="#nest-architecture">Controller, service i moduł</a>
+        <a href="#new-feature">Jak projektować endpointy</a>
+        <a href="#database-thinking">Jak myśleć o bazie</a>
+        <a href="#debugging">Debugowanie i zadania</a>
+        <div class="group">Start od zera</div>
+        <a href="#start-project">1. Utwórz projekt NestJS</a>
+        <a href="#postgres">1. PostgreSQL w Dockerze</a
+        ><a href="#prisma">2. Prisma 7 i modele</a
+        ><a href="#struktura">3. Struktura NestJS</a>
+        <div class="group">Uwierzytelnianie</div>
+        <a href="#users">4. Użytkownicy i bcrypt</a
+        ><a href="#login">5. Rejestracja i login</a
+        ><a href="#jwt-explained">6. Jak działa JWT i tokeny</a
+        ><a href="#guard">7. JWT Guard i /me</a
+        ><a href="#refresh">7. Refresh tokeny</a>
+        <div class="group">Pewność działania</div>
+        <a href="#testy">8. Testy</a><a href="#client">9. Klient API</a
+        ><a href="#co-dalej">10. Co dalej</a>
+      </aside>
+      <main>
+        <article>
+          <header class="hero" id="start">
+            <h1>Zbuduj bezpieczne API użytkowników od zera.</h1>
+            <p class="lead">
+              Praktyczny kurs od pustego folderu: NestJS 11, PostgreSQL w
+              Dockerze, Prisma 7, bcrypt oraz access i refresh tokeny z rotacją.
+            </p>
+            <div class="hero-grid">
+              <div class="dark-panel">
+                <h2>Efekt końcowy</h2>
+                <p>
+                  API rejestruje i loguje użytkownika, chroni endpointy przez
+                  Bearer JWT, bezpiecznie odświeża sesję i umie wylogować jedno
+                  albo wszystkie urządzenia.
+                </p>
+                <ul>
+                  <li>PostgreSQL + Prisma 7</li>
+                  <li>JWT access token: 15 minut</li>
+                  <li>Refresh token: hash w bazie + rotacja</li>
+                </ul>
+              </div>
+              <aside class="callout">
+                <h2>Bezpieczeństwo</h2>
+                <p>
+                  W produkcji ustaw długie, losowe sekrety w menedżerze
+                  sekretów. Nie commituj pliku <code>.env</code>, nie zapisuj
+                  haseł ani czystych refresh tokenów w bazie.
+                </p>
+              </aside>
+            </div>
+          </header>
+
+          <section id="backend-basics">
+            <div class="step">
+              <span class="num">Baza</span>
+              <div>
+                <h2>Najpierw: jak myśleć o backendzie?</h2>
+                <p>
+                  Backend to program działający na serwerze. Przyjmuje prośby od
+                  aplikacji (frontend, aplikacja mobilna albo inny serwer),
+                  sprawdza je, wykonuje reguły aplikacji, rozmawia z bazą danych
+                  i odsyła odpowiedź — najczęściej JSON.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>Użytkownik klika „Zaloguj” w aplikacji
+        ↓
+Frontend wysyła POST /auth/login z e-mailem i hasłem
+        ↓
+Controller odbiera HTTP request i przekazuje dane dalej
+        ↓
+Service sprawdza hasło i wykonuje logikę logowania
+        ↓
+Prisma odczytuje użytkownika z PostgreSQL
+        ↓
+Backend zwraca JSON z użytkownikiem i tokenami</code></pre>
+            </div>
+            <h3>Frontend, backend, API i baza danych</h3>
+            <p>
+              <strong>Frontend</strong> to ekran i interakcje użytkownika.
+              <strong>Backend</strong> jest strażnikiem danych i reguł.
+              <strong>API</strong> to umowa komunikacji między nimi, np.
+              <code>POST /auth/login</code>.
+              <strong>Baza danych</strong> przechowuje trwałe informacje:
+              użytkowników, tokeny, zamówienia czy wpisy.
+            </p>
+            <h3>HTTP w praktyce</h3>
+            <div class="endpoint">
+              <span class="method">GET</span
+              ><span>Pobierz dane, np. <code>GET /users/123</code>.</span>
+            </div>
+            <div class="endpoint">
+              <span class="method">POST</span
+              ><span
+                >Utwórz rzecz albo wykonaj akcję, np. rejestrację i login.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">PATCH</span
+              ><span
+                >Zmień fragment istniejących danych, np. nazwę profilu.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">DELETE</span
+              ><span>Usuń albo unieważnij zasób.</span>
+            </div>
+            <div class="note">
+              Request zawiera metodę, adres URL, opcjonalne <code>body</code> i
+              <code>headers</code>. Response ma status oraz dane. Najczęstsze
+              statusy: <code>200 OK</code>, <code>201 Created</code>,
+              <code>400 Bad Request</code>, <code>401 Unauthorized</code>,
+              <code>409 Conflict</code> i
+              <code>500 Internal Server Error</code>.
+            </div>
+          </section>
+
+          <section id="nest-architecture">
+            <div class="step">
+              <span class="num">Nest</span>
+              <div>
+                <h2>Controller, service i moduł — dlaczego to rozdzielamy?</h2>
+                <p>
+                  NestJS używa architektury podobnej do MVC, ale backend API
+                  zwykle nie renderuje widoków HTML. Najważniejsze są Controller
+                  i Service: pierwszy obsługuje HTTP, drugi zawiera reguły
+                  biznesowe.
+                </p>
+              </div>
+            </div>
+            <h3>To nie jest podział „dla porządku”</h3>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>Controller: „Dostałem POST /auth/login. Oto dane z body.”
+Service:    „Znajdę użytkownika, sprawdzę hasło, wydam tokeny.”
+Prisma:     „Wykonam zapytanie do PostgreSQL.”
+Database:   „Zwracam zapisany rekord użytkownika.”</code></pre>
+            </div>
+            <p>
+              Dzięki temu controller nie miesza HTTP, haseł, tokenów i SQL w
+              jednej metodzie. Tę samą logikę z serwisu możesz później wywołać z
+              endpointu, zadania cyklicznego albo testu — bez kopiowania kodu.
+            </p>
+            <h3>Mapa komponentów NestJS</h3>
+            <div class="endpoint">
+              <span class="method">Module</span
+              ><span
+                >Grupuje funkcję aplikacji i mówi Nestowi, jakie controllery
+                oraz serwisy należą do danego obszaru, np.
+                <code>AuthModule</code>.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">Controller</span
+              ><span
+                >Definiuje endpointy, odbiera <code>@Body()</code>,
+                <code>@Param()</code>, query i nagłówki; powinien być
+                cienki.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">Service</span
+              ><span
+                >Trzyma logikę biznesową: „czy można?”, „co utworzyć?”, „co
+                zapisać?”, „jaki błąd zwrócić?”.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">DTO</span
+              ><span
+                >Opisuje dane wejściowe i ich walidację, np. poprawny e-mail
+                oraz minimum 8 znaków hasła.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">Guard</span
+              ><span
+                >Decyduje, czy request może wejść do controllera; JWT guard
+                przepuszcza tylko poprawnie zalogowaną osobę.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">Strategy</span
+              ><span
+                >Mówi guardowi, jak sprawdzić konkretny mechanizm auth, np.
+                Bearer JWT.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">DI</span
+              ><span
+                >Dependency Injection: Nest sam tworzy i przekazuje potrzebne
+                obiekty przez konstruktor, np. <code>PrismaService</code> do
+                <code>UsersService</code>.</span
+              >
+            </div>
+            <div class="note">
+              Kiedy widzisz
+              <code>constructor(private readonly prisma: PrismaService)</code>,
+              czytaj to jako: „ten serwis potrzebuje narzędzia do rozmowy z
+              bazą; Nest dostarczy jedną gotową instancję”. Nie tworzysz ręcznie
+              <code>new PrismaService()</code> w każdym pliku.
+            </div>
+          </section>
+
+          <section id="new-feature">
+            <div class="step">
+              <span class="num">Plan</span>
+              <div>
+                <h2>Jak dodawać endpoint i nową funkcję?</h2>
+                <p>
+                  Nie zaczynaj od pisania controllera. Zacznij od zdania
+                  opisującego potrzebę użytkownika, a potem przejdź przez stały
+                  schemat decyzji.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>1. Potrzeba: „Zalogowany użytkownik ma zobaczyć swój profil”.
+2. Dane: potrzebuję User { id, email, name, bio }.
+3. Umowa API: GET /users/:id albo GET /auth/me?
+4. Uprawnienia: kto może to zobaczyć? Czy endpoint wymaga JWT?
+5. DTO: jakie dane przyjmuję i jak je waliduję?
+6. Service: jakie reguły wykonuję i jakie błędy zwracam?
+7. Baza: czy model już zawiera wymagane dane i indeksy?
+8. Testy: sukces, brak danych, brak uprawnień, błędne dane.</code></pre>
+            </div>
+            <h3>Przykład: endpoint pobierający użytkownika</h3>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>// users.controller.ts — warstwa HTTP
+@Get(':id')
+findOne(@Param('id') id: string) {
+  return this.usersService.findById(id);
+}
+
+// users.service.ts — logika i baza
+async findById(id: string) {
+  const user = await this.prisma.user.findUnique({ where: { id } });
+  if (!user) throw new NotFoundException('User not found');
+  return this.toPublicUser(user);
+}</code></pre>
+            </div>
+            <p>
+              Gdy endpoint ma zmieniać dane, np. <code>PATCH /users/me</code>,
+              dodajesz osobne DTO z polami, które wolno aktualizować. Nie
+              przyjmuj całego obiektu użytkownika „w ciemno”, bo klient mógłby
+              spróbować przesłać <code>passwordHash</code>, rolę lub cudze ID.
+            </p>
+            <ul class="checklist">
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Umiem opisać potrzebę użytkownika jednym zdaniem.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Wiem, jaka metoda HTTP i URL pasują do tej potrzeby.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Rozdzielam HTTP w controllerze od reguł w serwisie.</span
+                >
+              </li>
+            </ul>
+          </section>
+
+          <section id="database-thinking">
+            <div class="step">
+              <span class="num">DB</span>
+              <div>
+                <h2>Jak myśleć o bazie danych i modelach Prisma?</h2>
+                <p>
+                  Model Prisma zwykle odpowiada tabeli w PostgreSQL. Jeden
+                  obiekt
+                  <code>User</code> to rekord (wiersz), a <code>email</code> lub
+                  <code>createdAt</code> to kolumny.
+                </p>
+              </div>
+            </div>
+            <div class="endpoint">
+              <span class="method">@id</span
+              ><span
+                >Klucz główny: stabilny identyfikator jednego rekordu, np. UUID
+                użytkownika.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">@unique</span
+              ><span
+                >Ograniczenie unikalności: dwa konta nie mogą mieć tego samego
+                e-maila.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">@@index</span
+              ><span
+                >Indeks przyspiesza częste wyszukiwanie, np. refresh tokenów po
+                <code>userId</code>.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">relation</span
+              ><span
+                >Relacja łączy tabele. Jeden User ma wiele RefreshTokenów, lecz
+                token należy do jednego Usera.</span
+              >
+            </div>
+            <h3>Zmiana modelu to proces, nie tylko dopisanie pola</h3>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>// 1. Schema: potrzebujemy opisu użytkownika
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  name String?
+  bio String? // nowe opcjonalne pole
+}
+
+// 2. Zmieniamy prawdziwą bazę przez migrację
+npx.cmd prisma migrate dev --name add_user_bio
+
+// 3. Odświeżamy typy klienta Prisma
+npx.cmd prisma generate</code></pre>
+            </div>
+            <p>
+              Potem aktualizujesz DTO, serwis, endpoint i testy. To ważne:
+              <code>schema.prisma</code> jest opisem zamiaru, migracja zmienia
+              prawdziwą bazę, a <code>generate</code> tworzy typowanego klienta
+              do użycia w TypeScripcie.
+            </p>
+          </section>
+
+          <section id="debugging">
+            <div class="step">
+              <span class="num">Praca</span>
+              <div>
+                <h2>Debugowanie, narzędzia i mini-zadania</h2>
+                <p>
+                  Backend rozwijasz małymi pętlami: uruchom, wyślij request,
+                  przeczytaj odpowiedź, obejrzyj dane, dopisz test.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code># logi aplikacji
+npm.cmd run start:dev
+
+# status bazy i kontenera
+docker compose ps
+docker compose logs -f postgres
+
+# wygodny podgląd danych w przeglądarce
+npx.cmd prisma studio</code></pre>
+            </div>
+            <h3>Mini-zadania</h3>
+            <ul class="checklist">
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Dodaj do User opcjonalne pole <code>bio</code>, wykonaj
+                  migrację i zwróć je w publicznym profilu.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Dodaj <code>PATCH /users/me</code> z DTO zawierającym tylko
+                  <code>name</code> i <code>bio</code>.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Napisz test: request bez JWT do chronionego endpointu zwraca
+                  401.</span
+                >
+              </li>
+            </ul>
+            <h3>Mini-słowniczek</h3>
+            <p>
+              <strong>Endpoint</strong> — adres i metoda API.
+              <strong>Payload</strong> — dane w requestcie lub tokenie.
+              <strong>ORM</strong> — narzędzie mapujące obiekty kodu na dane
+              bazy, tu Prisma. <strong>Migracja</strong> — wersjonowana zmiana
+              struktury bazy. <strong>Hash</strong> — jednokierunkowy wynik
+              funkcji, używany do bezpiecznego przechowywania haseł i refresh
+              tokenów.
+            </p>
+          </section>
+
+          <section id="start-project">
+            <div class="step">
+              <span class="num">0</span>
+              <div>
+                <h2>Utwórz projekt NestJS od zera</h2>
+                <p>
+                  Zainstaluj Node.js 20+ i Docker Desktop. Następnie utwórz nowy
+                  katalog, a Nest CLI przygotuje pełny szkielet aplikacji oraz
+                  zainstaluje jej zależności.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>mkdir nest-auth-api
+cd nest-auth-api
+npx @nestjs/cli new api
+cd api
+
+# Jeśli PowerShell blokuje npm.ps1, używaj wariantu .cmd:
+npx.cmd @nestjs/cli new api</code></pre>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>npm.cmd run start:dev
+# Otwórz potem: http://localhost:3000</code></pre>
+            </div>
+            <div class="note">
+              Od tego momentu wszystkie kolejne polecenia wykonujesz w katalogu
+              <code>api</code>. W kreatorze Nest wybierz menedżer pakietów
+              <strong>npm</strong>.
+            </div>
+          </section>
+
+          <section id="postgres">
+            <div class="step">
+              <span class="num">1</span>
+              <div>
+                <h2>Uruchom PostgreSQL w Dockerze</h2>
+                <p>
+                  W katalogu <code>api</code> utwórz plik
+                  <code>docker-compose.yml</code>. Kontener daje powtarzalną
+                  lokalną bazę. Dane są trzymane w volume, więc restart
+                  kontenera ich nie usuwa.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>services:
+  postgres:
+    image: postgres:17
+    container_name: nest-auth-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:</code></pre>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>docker compose up -d
+docker compose ps
+docker exec -it nest-auth-postgres psql -U app_user -d app_db</code></pre>
+            </div>
+          </section>
+
+          <section id="prisma">
+            <div class="step">
+              <span class="num">2</span>
+              <div>
+                <h2>Zainstaluj i połącz Prisma 7 z bazą</h2>
+                <p>
+                  Najpierw dodaj pakiety i zainicjuj Prisma. W tym projekcie
+                  Prisma generuje klienta lokalnie do
+                  <code>generated/prisma</code>, a połączenie dostarcza adapter
+                  <code>@prisma/adapter-pg</code>.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>npm.cmd install @prisma/client @prisma/adapter-pg pg
+npm.cmd install -D prisma
+npx.cmd prisma init</code></pre>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code># .env
+DATABASE_URL="postgresql://app_user:app_password@localhost:5432/app_db"
+POSTGRES_USER="app_user"
+POSTGRES_PASSWORD="app_password"
+POSTGRES_DB="app_db"</code></pre>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>generator client {
+  provider = "prisma-client"
+  output = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db { provider = "postgresql" }
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  name String?
+  passwordHash String
+  refreshTokens RefreshToken[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RefreshToken {
+  id String @id @default(uuid())
+  tokenHash String @unique
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([userId])
+}</code></pre>
+            </div>
+            <div class="note">
+              Migracje: <code>npx prisma migrate dev --name jwt</code>, potem
+              <code>npx prisma generate</code>. Model
+              <code>RefreshToken</code> pozwala obsłużyć wiele urządzeń i
+              unieważniać konkretne sesje.
+            </div>
+          </section>
+
+          <section id="struktura">
+            <div class="step">
+              <span class="num">3</span>
+              <div>
+                <h2>Ułóż moduły odpowiedzialności</h2>
+                <p>
+                  Logika użytkowników nie powinna mieszkać w auth. Auth korzysta
+                  z serwisu użytkowników, a oba moduły korzystają z Prisma.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>npx.cmd nest g module prisma
+npx.cmd nest g service prisma
+npx.cmd nest g module users
+npx.cmd nest g service users
+npx.cmd nest g controller users
+npx.cmd nest g module auth
+npx.cmd nest g service auth
+npx.cmd nest g controller auth</code></pre>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>src/
+  auth/
+    dto/ login.dto.ts, register.dto.ts, refresh-token.dto.ts
+    guards/ jwt-access.guard.ts
+    strategies/ jwt-access.strategy.ts
+    auth.controller.ts
+    auth.service.ts
+  common/decorators/current-user.decorator.ts
+  prisma/prisma.service.ts
+  users/dto/create-user.dto.ts
+  users/users.service.ts</code></pre>
+            </div>
+          </section>
+
+          <section id="users">
+            <div class="step">
+              <span class="num">4</span>
+              <div>
+                <h2>Twórz użytkownika i hashuj hasło</h2>
+                <p>
+                  Do bazy trafia tylko <code>passwordHash</code>. Publiczna
+                  odpowiedź zawsze pomija ten atrybut.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>const existingUser = await this.prisma.user.findUnique({
+  where: { email: dto.email },
+});
+
+if (existingUser) {
+  throw new ConflictException('User with this email already exists');
+}
+
+const passwordHash = await bcrypt.hash(dto.password, 12);
+const user = await this.prisma.user.create({
+  data: { email: dto.email, name: dto.name, passwordHash },
+});
+
+return toPublicUser(user);</code></pre>
+            </div>
+            <ul class="checklist">
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >DTO waliduje e-mail i hasło o długości minimum 8
+                  znaków.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Duplikat e-maila zwraca <code>409 Conflict</code>.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Żadna odpowiedź API nie zawiera
+                  <code>passwordHash</code>.</span
+                >
+              </li>
+            </ul>
+          </section>
+
+          <section id="login">
+            <div class="step">
+              <span class="num">5</span>
+              <div>
+                <h2>Rejestracja i logowanie zwracają parę tokenów</h2>
+                <p>
+                  Access token identyfikuje requesty. Refresh token służy
+                  wyłącznie do odnowienia sesji.
+                </p>
+              </div>
+            </div>
+            <div class="endpoint">
+              <span class="method">POST</span><code>/auth/register</code>
+            </div>
+            <div class="endpoint">
+              <span class="method">POST</span><code>/auth/login</code>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>const isPasswordValid = await bcrypt.compare(
+  dto.password,
+  user.passwordHash,
+);
+
+if (!isPasswordValid) {
+  throw new UnauthorizedException('Invalid email or password');
+}
+
+return {
+  user: publicUser,
+  accessToken,
+  refreshToken,
+};</code></pre>
+            </div>
+            <div class="note warning">
+              Nie traktuj access tokenu jako trwałej sesji. Krótka ważność (tu:
+              <code>15m</code>) ogranicza szkody po wycieku.
+            </div>
+          </section>
+
+          <section id="jwt-explained">
+            <div class="step">
+              <span class="num">JWT</span>
+              <div>
+                <h2>Jak działają JWT, access token i refresh token?</h2>
+                <p>
+                  JWT (JSON Web Token) to podpisany przez serwer ciąg znaków.
+                  Nie jest zaszyfrowanym sejfem na dane użytkownika: jego
+                  zawartość można odczytać, ale nie można jej zmienić bez
+                  znajomości sekretu użytego do podpisu.
+                </p>
+              </div>
+            </div>
+            <h3>Co znajduje się w tokenie?</h3>
+            <p>
+              JWT ma trzy części rozdzielone kropkami:
+              <code>header.payload.signature</code>. W tym projekcie payload
+              zawiera co najmniej <code>sub</code> (ID użytkownika) i
+              <code>email</code>. Refresh token ma dodatkowo unikalne
+              <code>jti</code>, aby każda sesja miała własną tożsamość.
+            </p>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>{
+  "sub": "uuid-uzytkownika",
+  "email": "wiktor@example.com",
+  "iat": 1780000000,
+  "exp": 1780000900
+}</code></pre>
+            </div>
+            <div class="note warning">
+              Nie wkładaj do JWT hasła, <code>passwordHash</code>, danych karty
+              ani innych sekretów. Payload można odczytać po stronie klienta bez
+              klucza.
+            </div>
+            <h3>Dlaczego są dwa tokeny?</h3>
+            <div class="endpoint">
+              <span class="method">ACCESS</span>
+              <span
+                ><strong>Krótki, np. 15 minut.</strong> Klient wysyła go w
+                każdym chronionym requestcie jako
+                <code>Authorization: Bearer &lt;accessToken&gt;</code>.</span
+              >
+            </div>
+            <div class="endpoint">
+              <span class="method">REFRESH</span>
+              <span
+                ><strong>Dłuższy, np. 30 dni.</strong> Trafia tylko do
+                <code>POST /auth/refresh</code>, gdy access token wygasł.</span
+              >
+            </div>
+            <p>
+              Krótki access token ogranicza skutki jego wycieku. Refresh token
+              pozwala użytkownikowi pozostać zalogowanym bez wymagania hasła co
+              kilkanaście minut.
+            </p>
+            <h3>Przepływ od logowania do odświeżenia</h3>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>1. POST /auth/login
+   - serwer porównuje hasło przez bcrypt.compare()
+   - zwraca accessToken i refreshToken
+
+2. GET /auth/me
+   Authorization: Bearer &lt;accessToken&gt;
+   - guard sprawdza podpis i exp access tokenu
+   - strategy ustawia request.user = { id, email }
+
+3. Access token wygasł
+   - API zwraca 401 Unauthorized
+   - klient wywołuje POST /auth/refresh z refreshTokenem
+   - API zwraca nową parę tokenów
+   - klient ponawia pierwotny request</code></pre>
+            </div>
+            <h3>Co znaczy „rotacja refresh tokenu”?</h3>
+            <p>
+              Podczas <code>/auth/refresh</code> backend nie tylko wydaje nowe
+              tokeny. Najpierw weryfikuje podpis JWT, sprawdza datę wygaśnięcia,
+              porównuje przesłany token z hashem w tabeli
+              <code>RefreshToken</code>, ustawia <code>revokedAt</code> starego
+              rekordu i zapisuje hash nowego tokenu. Stary refresh token nie
+              może zostać użyty ponownie.
+            </p>
+            <ul class="checklist">
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Access token jest wysyłany do chronionych endpointów.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Refresh token służy tylko do odnowienia sesji.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >W bazie zapisuję hash refresh tokenu, nigdy jego czystą
+                  wartość.</span
+                >
+              </li>
+            </ul>
+          </section>
+
+          <section id="guard">
+            <div class="step">
+              <span class="num">6</span>
+              <div>
+                <h2>Zabezpiecz endpointy przez JWT Guard</h2>
+                <p>
+                  Strategy wyciąga token z nagłówka, weryfikuje podpis i
+                  umieszcza dane użytkownika w <code>request.user</code>. Guard
+                  wpuszcza request do kontrolera tylko po sukcesie.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>@Injectable()
+export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt-access') {
+  constructor(config: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: config.getOrThrow('JWT_ACCESS_SECRET'),
+    });
+  }
+
+  validate(payload: { sub: string; email: string }) {
+    return { id: payload.sub, email: payload.email };
+  }
+}</code></pre>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>@UseGuards(JwtAccessGuard)
+@Get('me')
+me(@CurrentUser() user: AuthenticatedUser) {
+  return user;
+}</code></pre>
+            </div>
+            <div class="endpoint">
+              <span class="method">GET</span><code>/auth/me</code> — nagłówek
+              <code>Authorization: Bearer &lt;accessToken&gt;</code>
+            </div>
+          </section>
+
+          <section id="refresh">
+            <div class="step">
+              <span class="num">7</span>
+              <div>
+                <h2>Dodaj refresh tokeny z rotacją</h2>
+                <p>
+                  Po loginie zapisujesz hash refresh tokenu w bazie. Gdy klient
+                  odświeża sesję, unieważniasz stary rekord i zapisujesz nowy.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>const refreshToken = await this.jwtService.signAsync(
+  { sub: user.id, email: user.email, jti: randomUUID() },
+  {
+    secret: config.getOrThrow('JWT_REFRESH_SECRET'),
+    expiresIn: config.getOrThrow('JWT_REFRESH_EXPIRES_IN'),
+  },
+);
+
+await prisma.refreshToken.create({
+  data: {
+    tokenHash: await bcrypt.hash(refreshToken, 12),
+    userId: user.id,
+    expiresAt: refreshTokenExpiresAt,
+  },
+});</code></pre>
+            </div>
+            <p>
+              Unikalne <code>jti</code> sprawia, że nowy refresh JWT różni się
+              od starego nawet wtedy, gdy oba powstaną w tej samej sekundzie.
+            </p>
+            <div class="endpoint">
+              <span class="method">POST</span><code>/auth/refresh</code>
+            </div>
+            <div class="endpoint">
+              <span class="method">POST</span><code>/auth/logout</code>
+            </div>
+            <div class="endpoint">
+              <span class="method">POST</span><code>/auth/logout-all</code>
+            </div>
+            <ul class="checklist">
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >W bazie przechowywany jest wyłącznie hash refresh
+                  tokenu.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Refresh sprawdza podpis, wygaśnięcie, hash i
+                  <code>revokedAt</code>.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Rotacja działa w transakcji: stary token jest unieważniany
+                  tylko raz.</span
+                >
+              </li>
+            </ul>
+          </section>
+
+          <section id="testy">
+            <div class="step">
+              <span class="num">8</span>
+              <div>
+                <h2>Utrzymaj bezpieczeństwo testami</h2>
+                <p>
+                  Testy jednostkowe używają mocka Prisma, a test HTTP uruchamia
+                  prawdziwy JWT strategy/guard bez zależności od Dockera.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>npm.cmd test -- --runInBand
+npm.cmd run test:e2e -- --runInBand
+npm.cmd exec tsc -- --noEmit --incremental false</code></pre>
+            </div>
+            <ul class="checklist">
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Hasło jest hashowane, a e-mail unikalny.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Login z błędnym hasłem zwraca 401.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  >Refresh token nie może zostać użyty drugi raz.</span
+                >
+              </li>
+              <li>
+                <input type="checkbox" data-progress /><span
+                  ><code>/auth/me</code> bez access tokenu zwraca 401.</span
+                >
+              </li>
+            </ul>
+          </section>
+
+          <section id="client">
+            <div class="step">
+              <span class="num">9</span>
+              <div>
+                <h2>Po stronie klienta użyj jednego API clienta</h2>
+                <p>
+                  <code>fetch</code> nie odświeża tokenów automatycznie. Umieść
+                  tę logikę w jednym miejscu i dopilnuj, aby wiele odpowiedzi
+                  401 uruchamiało tylko jeden refresh.
+                </p>
+              </div>
+            </div>
+            <div class="code">
+              <button class="copy">Kopiuj</button>
+              <pre><code>let refreshPromise: Promise&lt;void&gt; | null = null;
+
+async function ensureFreshTokens() {
+  if (!refreshPromise) {
+    refreshPromise = refreshTokens().finally(() =&gt; {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}</code></pre>
+            </div>
+            <p>
+              W React Native przechowuj tokeny w Expo SecureStore, iOS Keychain
+              lub Android Keystore — nie w zwykłym, niezaszyfrowanym storage.
+            </p>
+          </section>
+
+          <section id="co-dalej">
+            <div class="step">
+              <span class="num">10</span>
+              <div>
+                <h2>Co dalej?</h2>
+                <p>
+                  Masz bazę pod aplikację mobilną, SPA albo klasyczne API.
+                  Następne sensowne kroki to role i uprawnienia, reset hasła,
+                  rate limiting, Swagger oraz monitoring logowań.
+                </p>
+              </div>
+            </div>
+            <div class="footer">
+              <h2>API jest gotowe na kolejne moduły.</h2>
+              <p>
+                Najpierw zachowaj krótkie access tokeny, rotuj refresh tokeny i
+                nie rezygnuj z testów. Reszta aplikacji może dzięki temu
+                traktować auth jak stabilny fundament.
+              </p>
+              <button class="finish" id="finish">
+                Oznacz kurs jako ukończony
+              </button>
+            </div>
+          </section>
+        </article>
+      </main>
+    </div>
+    <script>
+      const boxes = [...document.querySelectorAll('[data-progress]')];
+      const saved = JSON.parse(
+        localStorage.getItem('nestjs-auth-course') || '[]',
+      );
+      boxes.forEach((box, index) => {
+        box.checked = saved.includes(index);
+        box.addEventListener('change', update);
+      });
+      function update() {
+        const done = boxes
+          .map((b, i) => (b.checked ? i : null))
+          .filter(Number.isInteger);
+        localStorage.setItem('nestjs-auth-course', JSON.stringify(done));
+        const p = boxes.length
+          ? Math.round((done.length / boxes.length) * 100)
+          : 0;
+        document.getElementById('percent').textContent = p + '%';
+        document.getElementById('fill').style.width = p + '%';
+      }
+      document.querySelectorAll('.copy').forEach((button) =>
+        button.addEventListener('click', async () => {
+          const text = button.parentElement.querySelector('code').innerText;
+          await navigator.clipboard.writeText(text);
+          const original = button.textContent;
+          button.textContent = 'Skopiowano';
+          setTimeout(() => (button.textContent = original), 1200);
+        }),
+      );
+      document.getElementById('finish').addEventListener('click', () => {
+        boxes.forEach((box) => (box.checked = true));
+        update();
+      });
+      update();
+    </script>
+  </body>
+</html>
